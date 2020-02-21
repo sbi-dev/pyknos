@@ -1,1 +1,1 @@
-from nflows import transforms, flows, distributions
+from nflows import transforms, flows, distributions, nn
