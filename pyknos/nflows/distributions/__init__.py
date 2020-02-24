@@ -1,1 +1,1 @@
-import nflows.distributions
+from nflows.distributions import *
