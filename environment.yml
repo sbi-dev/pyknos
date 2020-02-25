@@ -19,7 +19,7 @@ dependencies:
   - numpy
   - pip
   - pip:
-    - "nflows@git+ssh://git@github.com/mackelab/nflows.git"
+    - "nflows@git+https://github.com/mackelab/nflows.git"
     - torchtestcase
     - -e .  # install package in development mode
   - pytest
