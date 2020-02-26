@@ -1,0 +1,16 @@
+# to activate run, at the root of the repo,
+# git config --local include.path ../.gitconfig
+# see https://stackoverflow.com/a/18330114
+
+
+filter "nbstrip_full"]
+# install jq
+# see http://timstaley.co.uk/posts/making-git-and-jupyter-notebooks-play-nice/
+clean = "jq --indent 1 \
+        '(.cells[] | select(has(\"outputs\")) | .outputs) = []  \
+        | (.cells[] | select(has(\"execution_count\")) | .execution_count) = null  \
+        | .metadata = {\"language_info\": {\"name\": \"python\", \"pygments_lexer\": \"ipython3\"}} \
+        | .cells[].metadata = {} \
+        '"
+smudge = cat
+required = true
