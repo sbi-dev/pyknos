@@ -3,7 +3,7 @@
 # see https://stackoverflow.com/a/18330114
 
 
-filter "nbstrip_full"]
+filter ["nbstrip_full"]
 # install jq
 # see http://timstaley.co.uk/posts/making-git-and-jupyter-notebooks-play-nice/
 clean = "jq --indent 1 \
