@@ -26,7 +26,7 @@ setup(
             "black",
             "flake8",
             "isort",
-            "jq",
+            "nbstripout",
             "pytest",
             "pyyaml",
             "torchtestcase",
