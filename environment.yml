@@ -14,9 +14,9 @@ dependencies:
   - cudatoolkit
   - flake8
   - isort
-  - jq
   - jupyter
   - matplotlib
+  - nbstripout
   - numpy
   - pip
   - pip:
