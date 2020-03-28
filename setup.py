@@ -26,6 +26,7 @@ setup(
             "black",
             "flake8",
             "isort",
+            "nbstripout",
             "pytest",
             "pyyaml",
             "torchtestcase",
