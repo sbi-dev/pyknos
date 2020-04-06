@@ -14,7 +14,7 @@ setup(
     license="GPLv3",
     install_requires=[
         "matplotlib",
-        "nflows@git+https://github.com/mackelab/nflows.git",
+        "nflows@git+https://github.com/mackelab/nflows.git@v0.10",
         "numpy",
         "tensorboard",
         "torch",
