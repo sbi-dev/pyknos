@@ -32,20 +32,16 @@ class MultivariateGaussianMDN(nn.Module):
         num_components: int,
         custom_initialization=False,
     ):
-        """
-        Parameters
-        ----------
-        :param input_dim: int
-            Dimension of inputs.
-        :param hidden_dim: int
-            Dimension of final layer of hidden net.
-        :param hidden_net:
-            nets.ModuleNetwork which outputs final hidden representation before
-            paramterization layers (i.e logits, means, and log precisions).
-        :param num_components: int
-            Number of mixture components.
-        :param output_dim: int
-            Dimension of output density.
+        """Mixture of multivariate Gaussians with full diagonal.
+
+        Args:
+            features: Dimension of output density.
+            context_features: Dimension of inputs.
+            hidden_features: Dimension of final layer of `hidden_net`.
+            hidden_net: A Module which outputs final hidden representation before
+                paramterization layers (i.e logits, means, and log precisions).
+            num_components: Number of mixture components.
+            custom_initialization: XXX
         """
 
         super().__init__()
@@ -80,20 +76,19 @@ class MultivariateGaussianMDN(nn.Module):
         if custom_initialization:
             self._initialize()
 
-    def get_mixture_components(self, context: Tensor):
-        """
-        :param context: torch.Tensor [batch_size, input_dim]
-            The input to the MDN.
-        :return: tuple(
-            torch Tensor [batch_size, n_mixtures],
-            torch.Tensor [batch_size, n_mixtures, output_dim],
-            torch.Tensor [batch_size, n_mixtures, output_dim, output_dim],
-            torch.Tensor [1],
-            torch.Tensor [batch_size, n_mixtures, output_dim, output_dim]
-            )
-            Tuple containing logits, means, precisions,
-            sum of log diagonal of precision factors, and precision factors themselves.
-            Recall upper triangular precision factor A such that SIGMA^-1 = A^T A.
+    def get_mixture_components(
+        self, context: Tensor
+    ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
+        """Return logits, means, precisions and two additional useful quantities.
+
+        Args:
+            context: Input to the MDN, leading dimension is batch dimension.
+
+        Returns:
+            A tuple with logits (num_components), means (num_components x output_dim),
+            precisions (num_components, output_dim, output_dim), sum log diag of
+            precision factors (1), precision factors (upper triangular precision factor
+            A such that SIGMA^-1 = A^T A.) All batched.
         """
 
         h = self._hidden_net(context)
@@ -133,19 +128,18 @@ class MultivariateGaussianMDN(nn.Module):
         return logits, means, precisions, sumlogdiag, precision_factors
 
     def log_prob(self, inputs: Tensor, context=Optional[Tensor]) -> Tensor:
-        """
-        Evaluates log p(inputs | context), where p is a multivariate mixture of Gaussians
-        with mixture coefficients, means, and precisions given as a neural network function.
+        """Return log MoG(inputs|context) where MoG is a mixture of Gaussians density.
 
-        :param inputs: torch.Tensor [batch_size, input_dim]
-            Input variable.
-        :param context: torch.Tensor [batch_size, context_dim]
-            Conditioning variable.
-        :return: torch.Tensor [1]
-            Log probability of inputs given context under model.
+        The MoG's parameters (mixture coefficients, means, and precisions) are the otuputs of a neural network.
+
+        Args:
+            inputs: Input variable, leading dim interpreted as batch dimension.
+            context: Conditioning variable, leading dim interpreted as batch dimension.
+
+        Returns:
+            Log probability of inputs given context under a MoG model.
         """
 
-        # Get necessary quantities.
         logits, means, precisions, sumlogdiag, _ = self.get_mixture_components(context)
 
         batch_size, n_mixtures, output_dim = means.size()
@@ -165,18 +159,19 @@ class MultivariateGaussianMDN(nn.Module):
 
         return torch.logsumexp(a + b + c + d, dim=-1)
 
-    def sample(self, num_samples: int, context: Tensor):
+    def sample(self, num_samples: int, context: Tensor) -> Tensor:
         """
-        Generated num_samples independent samples from p(inputs | context).
-        NB: Generates num_samples samples for EACH item in context batch i.e. returns
+        Return num_samples independent samples from MoG(inputs | context).
+
+        Generates num_samples samples for EACH item in context batch i.e. returns
         (num_samples * batch_size) samples in total.
 
-        :param num_samples: int
-            Number of samples to generate.
-        :param context: torch.Tensor [batch_size, context_dim]
-            Conditioning variable.
-        :return: torch.Tensor [batch_size, num_samples, output_dim]
-            Batch of generated samples.
+        Args:
+            num_samples: Number of samples to generate.
+            context: Conditioning variable, leading dimension is batch dimension.
+
+        Returns:
+            Generated samples: (num_samples, output_dim) with leading batch dimension.
         """
 
         # Get necessary quantities.
@@ -223,11 +218,10 @@ class MultivariateGaussianMDN(nn.Module):
 
     def _initialize(self) -> None:
         """
-        Initializes MDN so that mixture coefficients are approximately uniform,
+        Initialize MDN so that mixture coefficients are approximately uniform,
         and covariances are approximately the identity.
-
-        :return: None
         """
+        
         # Initialize mixture coefficients to near uniform.
         self._logits_layer.weight.data = self._epsilon * torch.randn(
             self._num_components, self._hidden_features
