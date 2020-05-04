@@ -2,7 +2,7 @@
 Implementation of models based on
 C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
 """
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 import torch
@@ -31,6 +31,7 @@ class MultivariateGaussianMDN(nn.Module):
         hidden_net: nn.Module,
         num_components: int,
         custom_initialization=False,
+        embedding_net=None,
     ):
         """Mixture of multivariate Gaussians with full diagonal.
 
@@ -68,6 +69,13 @@ class MultivariateGaussianMDN(nn.Module):
         self._upper_layer = nn.Linear(
             hidden_features, num_components * self._num_upper_params
         )
+
+        # XXX docstring text
+        # embedding_net: NOT IMPLEMENTED
+        #         A `nn.Module` which has trainable parameters to encode the
+        #         context (conditioning). It is trained jointly with the MDN.
+        if embedding_net is not None:
+            raise NotImplementedError
 
         # Constant for numerical stability.
         self._epsilon = 1e-2
@@ -221,7 +229,7 @@ class MultivariateGaussianMDN(nn.Module):
         Initialize MDN so that mixture coefficients are approximately uniform,
         and covariances are approximately the identity.
         """
-        
+
         # Initialize mixture coefficients to near uniform.
         self._logits_layer.weight.data = self._epsilon * torch.randn(
             self._num_components, self._hidden_features
@@ -249,6 +257,7 @@ class MultivariateGaussianMDN(nn.Module):
         )
 
 
+# XXX This -> tests
 def main():
     # probs = torch.Tensor([[1, 0], [0, 1]])
     # samples = torch.multinomial(probs, num_samples=5, replacement=True)
