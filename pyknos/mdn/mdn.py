@@ -2,34 +2,34 @@
 Implementation of models based on
 C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
 """
+from typing import Optional
 
 import numpy as np
 import torch
-from torch import nn
+from torch import nn, Tensor
 from torch.nn import functional as F
 
 from nflows.utils import torchutils
 
-
+# This implementation based on Conor M. Durkan's et al. lfi package (2020).
+# https://github.com/conormdurkan/lfi/blob/master/src/nn_/nde/mdn.py
 class MultivariateGaussianMDN(nn.Module):
     """
-    Implementation of
-    'Mixture Density Networks'
-    Bishop
-    Neural Computing Research Group Report 1994
-    https://publications.aston.ac.uk/id/eprint/373/1/NCRG_94_004.pdf
+    Conditional density mixture of multivariate Gaussians, after Bishop [1].
+    
+    A multivariate Gaussian mixture with full (rather than diagonal) covariances 
 
-    Mixture family is multivariate Gaussian with full (rather than diagonal)
-    covariance matrices.
+    [1] Bishop, C.: 'Mixture Density Networks', Neural Computing Research Group Report
+    1994 https://publications.aston.ac.uk/id/eprint/373/1/NCRG_94_004.pdf
     """
 
     def __init__(
         self,
-        features,
-        context_features,
-        hidden_features,
-        hidden_net,
-        num_components,
+        features: int,
+        context_features: int,
+        hidden_features: int,
+        hidden_net: nn.Module,
+        num_components: int,
         custom_initialization=False,
     ):
         """
@@ -80,7 +80,7 @@ class MultivariateGaussianMDN(nn.Module):
         if custom_initialization:
             self._initialize()
 
-    def get_mixture_components(self, context):
+    def get_mixture_components(self, context: Tensor):
         """
         :param context: torch.Tensor [batch_size, input_dim]
             The input to the MDN.
@@ -132,7 +132,7 @@ class MultivariateGaussianMDN(nn.Module):
 
         return logits, means, precisions, sumlogdiag, precision_factors
 
-    def log_prob(self, inputs, context=None):
+    def log_prob(self, inputs: Tensor, context=Optional[Tensor]) -> Tensor:
         """
         Evaluates log p(inputs | context), where p is a multivariate mixture of Gaussians
         with mixture coefficients, means, and precisions given as a neural network function.
@@ -165,7 +165,7 @@ class MultivariateGaussianMDN(nn.Module):
 
         return torch.logsumexp(a + b + c + d, dim=-1)
 
-    def sample(self, num_samples, context):
+    def sample(self, num_samples: int, context: Tensor):
         """
         Generated num_samples independent samples from p(inputs | context).
         NB: Generates num_samples samples for EACH item in context batch i.e. returns
@@ -221,7 +221,7 @@ class MultivariateGaussianMDN(nn.Module):
 
         return samples.reshape(batch_size, num_samples, output_dim)
 
-    def _initialize(self):
+    def _initialize(self) -> None:
         """
         Initializes MDN so that mixture coefficients are approximately uniform,
         and covariances are approximately the identity.
@@ -239,7 +239,7 @@ class MultivariateGaussianMDN(nn.Module):
             self._num_components * self._features, self._hidden_features
         )
         self._unconstrained_diagonal_layer.bias.data = torch.log(
-            torch.exp(torch.Tensor([1 - self._epsilon])) - 1
+            torch.exp(torch.tensor([1 - self._epsilon])) - 1
         ) * torch.ones(
             self._num_components * self._features
         ) + self._epsilon * torch.randn(
