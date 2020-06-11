@@ -5,10 +5,8 @@ implements diverse conditional density estimators.
 
 ### Density estimation with normalizing flows
 
-This package provides (only) pass-through access to all the
-functionalities of [nflows](https://github.com/bayesiains/nflows)
-(note: at the moment it points to [our development
-fork](https://github.com/mackelab/nflows).)
+This package provides pass-through access to all the
+functionalities of [nflows](https://github.com/bayesiains/nflows).
 
 ## Setup
 
