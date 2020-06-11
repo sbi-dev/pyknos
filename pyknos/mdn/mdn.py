@@ -1,6 +1,8 @@
 """
 Implementation of models based on
 C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
+
+Taken from http://github.com/conormdurkan/lfi. See there for copyright.
 """
 from typing import Optional, Tuple
 

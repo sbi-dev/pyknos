@@ -11,7 +11,7 @@ setup(
     url="https://github.com/mackelab/pyknos",
     author="Álvaro Tejero Cantero",
     packages=find_packages(exclude=["tests"]),
-    license="GPLv3",
+    license="AGPLv3",
     install_requires=[
         "matplotlib",
         "nflows==0.11",
