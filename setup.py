@@ -10,6 +10,7 @@ setup(
     description="conditional density estimation",
     keywords="conditional density estimation PyTorch normalizing flows mdn",
     url="https://github.com/mackelab/pyknos",
+    download_url="https://github.com/mackelab/pyknos/archive/v0.11.tar.gz",
     author="Álvaro Tejero Cantero",
     author_email="alvaro@minin.es",
     packages=find_packages(exclude=["tests"]),
