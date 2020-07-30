@@ -53,7 +53,8 @@ class MultivariateGaussianMDN(nn.Module):
         self._context_features = context_features
         self._hidden_features = hidden_features
         self._num_components = num_components
-        self._num_upper_params = (features * (features - 1)) // 2
+        
+        self._num_upper_params = (features * (features - 1)) // 2 if self._features > 1 else self._num_upper_params = 1
 
         self._row_ix, self._column_ix = np.triu_indices(features, k=1)
         self._diag_ix = range(features)
