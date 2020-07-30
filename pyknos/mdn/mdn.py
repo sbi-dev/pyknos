@@ -53,7 +53,8 @@ class MultivariateGaussianMDN(nn.Module):
         self._context_features = context_features
         self._hidden_features = hidden_features
         self._num_components = num_components
-        self._num_upper_params = (features * (features - 1)) // 2
+        
+        self._num_upper_params = (features * (features - 1)) // 2 
 
         self._row_ix, self._column_ix = np.triu_indices(features, k=1)
         self._diag_ix = range(features)
@@ -112,9 +113,7 @@ class MultivariateGaussianMDN(nn.Module):
         unconstrained_diagonal = self._unconstrained_diagonal_layer(h).view(
             -1, self._num_components, self._features
         )
-        upper = self._upper_layer(h).view(
-            -1, self._num_components, self._num_upper_params
-        )
+        
 
         # Elements of diagonal of precision factor must be positive
         # (recall precision factor A such that SIGMA^-1 = A^T A).
@@ -125,7 +124,13 @@ class MultivariateGaussianMDN(nn.Module):
             means.shape[0], self._num_components, self._features, self._features
         )
         precision_factors[..., self._diag_ix, self._diag_ix] = diagonal
-        precision_factors[..., self._row_ix, self._column_ix] = upper
+        
+        # one dimensional feature does not involve upper triangular parameters
+        if self._features > 1:
+            upper = self._upper_layer(h).view(
+                -1, self._num_components, self._num_upper_params
+            )
+            precision_factors[..., self._row_ix, self._column_ix] = upper
 
         # Precisions are given by SIGMA^-1 = A^T A.
         precisions = torch.matmul(
