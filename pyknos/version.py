@@ -1,2 +1,7 @@
-__version__ = "0.11"
-VERSION = __version__
+# This file is part of pyknos, a library for conditional density estimation.
+# pyknos is licensed under the Affero General Public License v3,
+# see <https://www.gnu.org/licenses/>.
+
+VERSION = (0, 12, 0)
+
+__version__ = ".".join(map(str, VERSION))
