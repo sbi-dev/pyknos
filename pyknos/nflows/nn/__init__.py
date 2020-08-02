@@ -1,2 +1,2 @@
-import nflows.nn.nde as nde
-import nflows.nn.nets as nets
+from nflows.nn import nde
+from nflows.nn import nets
