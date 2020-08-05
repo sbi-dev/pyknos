@@ -8,6 +8,9 @@ on:
     branches: [ testing_branch ]
   pull_request:
     branches: [ testing_branch ]
+  workflow_dispatch:
+    branches: [ testing_branch ]
+
 
 jobs:
   build:
