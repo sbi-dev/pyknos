@@ -1,9 +1,8 @@
 import pytest
 import torch
-from torch import Tensor, eye, ones, zeros
 import torch.nn as nn
+from torch import Tensor, eye, ones, zeros
 from torch.distributions import MultivariateNormal
-
 from pyknos.mdn.mdn import MultivariateGaussianMDN
 
 
