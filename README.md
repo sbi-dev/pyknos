@@ -1,3 +1,7 @@
+[![PyPI version](https://badge.fury.io/py/pyknos.svg)](https://badge.fury.io/py/pyknos)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/mackelab/sbi/blob/master/CONTRIBUTING.md)
+[![GitHub license](https://img.shields.io/github/license/mackelab/pyknos)](https://github.com/mackelab/sbi/blob/master/LICENSE.txt)
+
 ## Description
 
 Python package for conditional density estimation. It either wraps or
