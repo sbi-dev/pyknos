@@ -20,12 +20,12 @@ dependencies:
   - numpy
   - pip
   - pip:
-    - "nflows==0.11"
+    - "nflows==0.12"
     - torchtestcase
     - -e .  # Install package in development mode.
   - pytest
-  - python
-  - pytorch
+  - "python >= 3.6.11"
+  - "pytorch == 1.5.1"
   - pyyaml
   - tensorboard
   - tqdm

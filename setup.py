@@ -17,10 +17,10 @@ setup(
     license="AGPLv3",
     install_requires=[
         "matplotlib",
-        "nflows==0.11",
+        "nflows==0.12",
         "numpy",
         "tensorboard",
-        "torch",
+        "torch==1.5.1",
         "tqdm",
     ],
     extras_requires={
