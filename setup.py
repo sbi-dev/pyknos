@@ -31,6 +31,7 @@ setup(
             "isort",
             "nbstripout",
             "pytest",
+            "pytest-pep8"
             "pyyaml",
             "torchtestcase",
             "twine",
