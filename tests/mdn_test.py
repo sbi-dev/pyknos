@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pytest
 import torch
 from torch import Tensor, eye, ones, zeros
