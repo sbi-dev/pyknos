@@ -34,8 +34,8 @@ def read_long_description(fname: str, default: str) -> str:
         return default
 
 
-def load_version_dict(fname: str = "__version__.py") -> Dict[str, Any]:
-    """Return version information in a  dictionary.
+def load_version_dict(fname: str = "version.py") -> Dict[str, Any]:
+    """Return version information in a dictionary.
 
     Runs the version dictionary file `name` and collects assignments there as keys in a dictionary."""
 
@@ -57,7 +57,7 @@ KEYWORDS = "conditional density estimation PyTorch normalizing flows mdn"
 URL = "https://github.com/mackelab/pyknos"
 EMAIL = "alvaro@minin.es"
 AUTHOR = "Álvaro Tejero-Cantero"
-VERSION = load_version_dict()["version"]
+VERSION = load_version_dict()["__version__"]
 PYTHON_REQUIRES = ">=3.6.0"
 
 INSTALL_REQUIRES = (
