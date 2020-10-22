@@ -121,7 +121,11 @@ class MultivariateGaussianMDN(nn.Module):
 
         # Create empty precision factor matrix, and fill with appropriate quantities.
         precision_factors = torch.zeros(
-            means.shape[0], self._num_components, self._features, self._features
+            means.shape[0],
+            self._num_components,
+            self._features,
+            self._features,
+            device=context.device
         )
         precision_factors[..., self._diag_ix, self._diag_ix] = diagonal
         
