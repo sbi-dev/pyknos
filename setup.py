@@ -61,7 +61,7 @@ VERSION = load_version_dict()["__version__"]
 PYTHON_REQUIRES = ">=3.6.0"
 
 INSTALL_REQUIRES = (
-    ["matplotlib", "nflows==0.12", "numpy", "tensorboard", "torch", "tqdm",],
+    ["matplotlib", "nflows==0.13", "numpy", "tensorboard", "torch", "tqdm",],
 )
 
 EXTRAS_REQUIRES = (
