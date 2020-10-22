@@ -1,3 +1,6 @@
+# v0.13.1
+- Fix GPU bug in MDN. 
+
 # v0.13.0
 - Upgrade dependency on `nflows` to 0.13 to allow GPU support. 
 
