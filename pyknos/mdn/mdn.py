@@ -18,8 +18,8 @@ from nflows.utils import torchutils
 class MultivariateGaussianMDN(nn.Module):
     """
     Conditional density mixture of multivariate Gaussians, after Bishop [1].
-    
-    A multivariate Gaussian mixture with full (rather than diagonal) covariances 
+
+    A multivariate Gaussian mixture with full (rather than diagonal) covariances
 
     [1] Bishop, C.: 'Mixture Density Networks', Neural Computing Research Group Report
     1994 https://publications.aston.ac.uk/id/eprint/373/1/NCRG_94_004.pdf
@@ -53,8 +53,8 @@ class MultivariateGaussianMDN(nn.Module):
         self._context_features = context_features
         self._hidden_features = hidden_features
         self._num_components = num_components
-        
-        self._num_upper_params = (features * (features - 1)) // 2 
+
+        self._num_upper_params = (features * (features - 1)) // 2
 
         self._row_ix, self._column_ix = np.triu_indices(features, k=1)
         self._diag_ix = range(features)
@@ -113,7 +113,6 @@ class MultivariateGaussianMDN(nn.Module):
         unconstrained_diagonal = self._unconstrained_diagonal_layer(h).view(
             -1, self._num_components, self._features
         )
-        
 
         # Elements of diagonal of precision factor must be positive
         # (recall precision factor A such that SIGMA^-1 = A^T A).
@@ -125,10 +124,10 @@ class MultivariateGaussianMDN(nn.Module):
             self._num_components,
             self._features,
             self._features,
-            device=context.device
+            device=context.device,
         )
         precision_factors[..., self._diag_ix, self._diag_ix] = diagonal
-        
+
         # one dimensional feature does not involve upper triangular parameters
         if self._features > 1:
             upper = self._upper_layer(h).view(
@@ -149,7 +148,8 @@ class MultivariateGaussianMDN(nn.Module):
     def log_prob(self, inputs: Tensor, context=Optional[Tensor]) -> Tensor:
         """Return log MoG(inputs|context) where MoG is a mixture of Gaussians density.
 
-        The MoG's parameters (mixture coefficients, means, and precisions) are the otuputs of a neural network.
+        The MoG's parameters (mixture coefficients, means, and precisions) are the
+        outputs of a neural network.
 
         Args:
             inputs: Input variable, leading dim interpreted as batch dimension.
@@ -160,7 +160,36 @@ class MultivariateGaussianMDN(nn.Module):
         """
 
         logits, means, precisions, sumlogdiag, _ = self.get_mixture_components(context)
+        return self.log_prob_mog(inputs, logits, means, precisions, sumlogdiag)
 
+    @staticmethod
+    def log_prob_mog(
+        inputs: Tensor,
+        logits: Tensor,
+        means: Tensor,
+        precisions: Tensor,
+        sumlogdiag: Tensor,
+    ) -> Tensor:
+        """
+        Return the log-probability of `inputs` under a MoG with specified parameters.
+
+        Unlike the `log_prob()` method, this method is fully detached from the neural
+        network and can be used independent of the neural net in case the MoG 
+        parameters are already known.
+
+        Args:
+            inputs: Location at which to evaluate the MoG.
+            logits: Log-weights of each component of the MoG. Shape: (batch_size,
+                num_components).
+            means: Means of each MoG, shape (batch_size, num_components, parameter_dim).
+            precisions: Precision matrices of each MoG. Shape:
+                (batch_size, num_components, parameter_dim, parameter_dim).
+            sumlogdiag: Sum of the logarithm of the diagonal of the precision matrix.
+                Shape: (batch_size, num_components).
+
+        Returns:
+            Log-probabilities of each input.
+        """
         batch_size, n_mixtures, output_dim = means.size()
         inputs = inputs.view(-1, 1, output_dim)
 
@@ -195,6 +224,31 @@ class MultivariateGaussianMDN(nn.Module):
 
         # Get necessary quantities.
         logits, means, _, _, precision_factors = self.get_mixture_components(context)
+        return self.sample_mog(num_samples, logits, means, precision_factors)
+
+    @staticmethod
+    def sample_mog(
+        num_samples: int, logits: Tensor, means: Tensor, precision_factors: Tensor
+    ) -> Tensor:
+        """
+        Return samples of a MoG with specified parameters.
+
+        Unlike the `sample()` method, this method is fully detached from the neural
+        network and can be used independent of the neural net in case the MoG 
+        parameters are already known.
+
+        Args:
+            num_samples: Number of samples to generate.
+            logits: Log-weights of each component of the MoG. Shape: (batch_size,
+                num_components).
+            means: Means of each MoG. Shape: (batch_size, num_components,
+                parameter_dim).
+            precision_factors: Cholesky factors of each component of the MoG. Shape:
+                (batch_size, num_components, parameter_dim, parameter_dim).
+
+        Returns:
+            Tensor: Samples from the MoG.
+        """
         batch_size, n_mixtures, output_dim = means.shape
 
         # We need (batch_size * num_samples) samples in total.
