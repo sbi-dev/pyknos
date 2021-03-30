@@ -1,5 +1,9 @@
+# v0.14.1
+- refactor MoG to allow evaluation with analytically determined parameters (#17).
+
 # v0.14.0
 - Upgrade dependency on `nflows` to 0.14 for NSF fix (nflows #25).
+
 # v0.13.1
 - Fix GPU bug in MDN. 
 

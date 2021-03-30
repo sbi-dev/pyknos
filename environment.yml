@@ -23,7 +23,7 @@ dependencies:
   - numpy
   - pip
   - pip:
-    - "nflows==0.13"
+    - "nflows==0.14"
     - -e ".[dev]"
   - "python >= 3.6.0"
   - "pytorch >= 1.5.1"
