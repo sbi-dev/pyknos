@@ -184,7 +184,7 @@ class MultivariateGaussianMDN(nn.Module):
             means: Means of each MoG, shape (batch_size, num_components, parameter_dim).
             precisions: Precision matrices of each MoG. Shape:
                 (batch_size, num_components, parameter_dim, parameter_dim).
-            sumlogdiag: Sum of the logarithm of the diagonal of the precision matrix.
+            sumlogdiag: Sum of the logarithm of the diagonal of the precision factors.
                 Shape: (batch_size, num_components).
 
         Returns:
