@@ -174,7 +174,7 @@ class MultivariateGaussianMDN(nn.Module):
         Return the log-probability of `inputs` under a MoG with specified parameters.
 
         Unlike the `log_prob()` method, this method is fully detached from the neural
-        network and can be used independent of the neural net in case the MoG 
+        network and can be used independent of the neural net in case the MoG
         parameters are already known.
 
         Args:
@@ -234,7 +234,7 @@ class MultivariateGaussianMDN(nn.Module):
         Return samples of a MoG with specified parameters.
 
         Unlike the `sample()` method, this method is fully detached from the neural
-        network and can be used independent of the neural net in case the MoG 
+        network and can be used independent of the neural net in case the MoG
         parameters are already known.
 
         Args:
@@ -278,7 +278,10 @@ class MultivariateGaussianMDN(nn.Module):
         # of upper triangular precision factor.
         zero_mean_samples, _ = torch.triangular_solve(
             torch.randn(
-                batch_size * num_samples, output_dim, 1
+                batch_size * num_samples,
+                output_dim,
+                1,
+                device=chosen_precision_factors.device,
             ),  # Need dummy final dimension.
             chosen_precision_factors,
         )
