@@ -1,3 +1,6 @@
+# v0.14.2
+- fix device bug in analytical MoG sampling (#19).
+
 # v0.14.1
 - refactor MoG to allow evaluation with analytically determined parameters (#17).
 
