@@ -18,19 +18,23 @@ def linear_gaussian(
     return likelihood_shift + theta + torch.mm(chol_factor, torch.randn_like(theta).T).T
 
 
-@pytest.mark.parametrize("dim", ([1, 5, 10]),)
-def test_mdn_for_diff_dimension_data(dim: int, 
-            hidden_features: int=50, 
-            num_components: int=10) -> None:
+@pytest.mark.parametrize(
+    "dim",
+    ([1, 5, 10]),
+)
+@pytest.mark.parametrize("device", ("cpu", "cuda:0"))
+def test_mdn_for_diff_dimension_data(
+    dim: int, device: str, hidden_features: int = 50, num_components: int = 10
+) -> None:
 
     theta = torch.rand(3, dim)
     likelihood_shift = torch.zeros(theta.shape)
     likelihood_cov = eye(dim)
-    context =  linear_gaussian(theta, likelihood_shift, likelihood_cov)
+    context = linear_gaussian(theta, likelihood_shift, likelihood_cov)
 
     x_numel = theta[0].numel()
     y_numel = context[0].numel()
-    
+
     distribution = MultivariateGaussianMDN(
         features=x_numel,
         context_features=y_numel,
@@ -44,10 +48,13 @@ def test_mdn_for_diff_dimension_data(dim: int,
         num_components=num_components,
         custom_initialization=True,
     )
+    distribution = distribution.to(device)
 
-    logits, means, precisions, _, _ = distribution.get_mixture_components(theta)
-    
-    log_prob = distribution.log_prob(context, theta)
+    logits, means, precisions, _, _ = distribution.get_mixture_components(
+        theta.to(device)
+    )
 
-    sample = distribution.sample(100, theta)
-
+    # Test evaluation and sampling.
+    distribution.log_prob(context.to(device), theta.to(device))
+    distribution.sample(100, theta.to(device))
+    distribution.sample_mog(10, logits, means, precisions)
