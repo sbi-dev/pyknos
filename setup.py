@@ -61,7 +61,14 @@ VERSION = load_version_dict()["__version__"]
 PYTHON_REQUIRES = ">=3.6.0"
 
 INSTALL_REQUIRES = (
-    ["matplotlib", "nflows==0.14", "numpy", "tensorboard", "torch", "tqdm",],
+    [
+        "matplotlib",
+        "nflows @ git+https://github.com/mackelab/nflows@log-normal-base#egg=nflows",
+        "numpy",
+        "tensorboard",
+        "torch",
+        "tqdm",
+    ],
 )
 
 EXTRAS_REQUIRES = (
@@ -74,7 +81,7 @@ EXTRAS_REQUIRES = (
             "nbstripout",
             "pep517",
             "pytest",
-            "pytest-pep8"
+            "pytest-pep8",
             "pyyaml",
             "torchtestcase",
             "twine",
