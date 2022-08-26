@@ -1,3 +1,6 @@
+# v0.15.0
+- `epsilon` is added after multiplication of Cholesky-factors for better numerical stability (#22)
+
 # v0.14.2
 - fix device bug in analytical MoG sampling (#19).
 
