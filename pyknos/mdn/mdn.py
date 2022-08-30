@@ -159,7 +159,6 @@ class MultivariateGaussianMDN(nn.Module):
         self,
         inputs: Tensor,
         context=Optional[Tensor],
-        dimensions: Optional[Tensor] = None,
     ) -> Tensor:
         """Return log MoG(inputs|context) where MoG is a mixture of Gaussians density.
 
@@ -175,15 +174,9 @@ class MultivariateGaussianMDN(nn.Module):
         Returns:
             Log probability of inputs given context under a MoG model.
         """
-
-        if dimensions is None:
-            if self.dimensions is not None:
-                dimensions = self.dimensions
-            else:
-                dimensions = torch.ones(inputs.shape).bool()
-
-        # Negate because we will use `dimensions` as the values to be masked out.
-        dimensions = ~dimensions
+        
+        # Obtain the dimensions that will be marginalized out.
+        dimensions = torch.isnan(inputs)
 
         logits, means, precisions, sumlogdiag, _ = self.get_mixture_components(
             context, dimensions=dimensions
