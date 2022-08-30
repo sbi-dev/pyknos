@@ -147,11 +147,11 @@ class MultivariateGaussianMDN(nn.Module):
 
         # For marginalization.
         diagonal = torch.permute(diagonal, (0, 2, 1))
-        diagonal[dimensions] = 1.0
-        diagonal = torch.permute(diagonal, (0, 2, 1))
+        diagonal = torch.log(diagonal)
+        diagonal[dimensions] = 0.0
 
         # The sum of the log diagonal of A is used in the likelihood calculation.
-        sumlogdiag = torch.sum(torch.log(diagonal), dim=-1)
+        sumlogdiag = torch.sum(diagonal, dim=1)
 
         return logits, means, precisions, sumlogdiag, precision_factors
 
