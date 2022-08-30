@@ -72,6 +72,7 @@ class MultivariateGaussianMDN(nn.Module):
         self._upper_layer = nn.Linear(
             hidden_features, num_components * self._num_upper_params
         )
+        self.dimensions = None
 
         # XXX docstring text
         # embedding_net: NOT IMPLEMENTED
@@ -88,7 +89,7 @@ class MultivariateGaussianMDN(nn.Module):
             self._initialize()
 
     def get_mixture_components(
-        self, context: Tensor
+        self, context: Tensor, dimensions: Optional[Tensor] = None
     ) -> Tuple[Tensor, Tensor, Tensor, Tensor, Tensor]:
         """Return logits, means, precisions and two additional useful quantities.
 
@@ -144,12 +145,22 @@ class MultivariateGaussianMDN(nn.Module):
             ..., torch.arange(self._features), torch.arange(self._features)
         ] += self._epsilon
 
+        # For marginalization.
+        diagonal = torch.permute(diagonal, (0, 2, 1))
+        diagonal[dimensions] = 1.0
+        diagonal = torch.permute(diagonal, (0, 2, 1))
+
         # The sum of the log diagonal of A is used in the likelihood calculation.
         sumlogdiag = torch.sum(torch.log(diagonal), dim=-1)
 
         return logits, means, precisions, sumlogdiag, precision_factors
 
-    def log_prob(self, inputs: Tensor, context=Optional[Tensor]) -> Tensor:
+    def log_prob(
+        self,
+        inputs: Tensor,
+        context=Optional[Tensor],
+        dimensions: Optional[Tensor] = None,
+    ) -> Tensor:
         """Return log MoG(inputs|context) where MoG is a mixture of Gaussians density.
 
         The MoG's parameters (mixture coefficients, means, and precisions) are the
@@ -158,13 +169,28 @@ class MultivariateGaussianMDN(nn.Module):
         Args:
             inputs: Input variable, leading dim interpreted as batch dimension.
             context: Conditioning variable, leading dim interpreted as batch dimension.
+            dimensions: Must be a boolean tensor with the same shape as `inputs`.
+                Only `True` elements are considered in the loss.
 
         Returns:
             Log probability of inputs given context under a MoG model.
         """
 
-        logits, means, precisions, sumlogdiag, _ = self.get_mixture_components(context)
-        return self.log_prob_mog(inputs, logits, means, precisions, sumlogdiag)
+        if dimensions is None:
+            if self.dimensions is not None:
+                dimensions = self.dimensions
+            else:
+                dimensions = torch.ones(inputs.shape).bool()
+
+        # Negate because we will use `dimensions` as the values to be masked out.
+        dimensions = ~dimensions
+
+        logits, means, precisions, sumlogdiag, _ = self.get_mixture_components(
+            context, dimensions=dimensions
+        )
+        return self.log_prob_mog(
+            inputs, logits, means, precisions, sumlogdiag, dimensions=dimensions
+        )
 
     @staticmethod
     def log_prob_mog(
@@ -173,6 +199,7 @@ class MultivariateGaussianMDN(nn.Module):
         means: Tensor,
         precisions: Tensor,
         sumlogdiag: Tensor,
+        dimensions: Tensor,
     ) -> Tensor:
         """
         Return the log-probability of `inputs` under a MoG with specified parameters.
@@ -199,16 +226,25 @@ class MultivariateGaussianMDN(nn.Module):
 
         # Split up evaluation into parts.
         a = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
-        b = -(output_dim / 2.0) * np.log(2 * np.pi)
+        b = -((output_dim - torch.sum(dimensions, dim=1)) / 2.0) * np.log(2 * np.pi)
+        b = b.unsqueeze(1)
         c = sumlogdiag
         d1 = (inputs.expand_as(means) - means).view(
             batch_size, n_mixtures, output_dim, 1
         )
+
+        d1 = torch.permute(d1, (0, 2, 1, 3))
+        d1[dimensions] = 0.0
+        d1 = torch.permute(d1, (0, 2, 1, 3))
+
         d2 = torch.matmul(precisions, d1)
+        d2 = torch.permute(d2, (0, 2, 1, 3))
+        d2[dimensions] = 0.0
+        d2 = torch.permute(d2, (0, 2, 1, 3))
+
         d = -0.5 * torch.matmul(torch.transpose(d1, 2, 3), d2).view(
             batch_size, n_mixtures
         )
-
         return torch.logsumexp(a + b + c + d, dim=-1)
 
     def sample(self, num_samples: int, context: Tensor) -> Tensor:
