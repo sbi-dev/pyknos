@@ -375,7 +375,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
         hidden_net: nn.Module,
         custom_initialization=False,
         embedding_net=None,
-        minimal_std=1.0,
+        minimal_std=None,
     ):
         """Mixture of multivariate Gaussians with full diagonal.
 
@@ -433,11 +433,12 @@ class DiagnonalGaussValidClassifier(nn.Module):
 
         # Elements of diagonal of precision factor must be positive
         # (recall precision factor A such that SIGMA^-1 = A^T A).
-        diagonal = (
-            F.softplus(unconstrained_diagonal) + self._epsilon + self._minimal_std
-        )
+        diagonal = F.softplus(unconstrained_diagonal) + self._epsilon
 
-        valid_probs = F.sigmoid(self._valid_layer(h))
+        if self._minimal_std is not None:
+            diagonal += self._minimal_std
+
+        valid_probs = torch.sigmoid(self._valid_layer(h))
 
         return means, diagonal, valid_probs
 
@@ -471,7 +472,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
         valid_probs = torch.zeros(predicted_valid_probs.shape)
         valid_probs[~dimensions] = predicted_valid_probs[~dimensions]
         valid_probs[dimensions] = 1 - predicted_valid_probs[dimensions]
-        valid_log_probs = torch.log(valid_probs)
+        valid_log_probs = torch.log(valid_probs + self._epsilon)
 
         # Mask out those probs that were invalid because the protocol did not
         # get run. They should not influence the estimate of how often a particular
@@ -485,8 +486,9 @@ class DiagnonalGaussValidClassifier(nn.Module):
 
         # Obtain the full log-prob given the gauss and the classifier.
         joint_probs = mog_log_probs + valid_log_probs
+        joint_probs_per_dim = torch.sum(joint_probs, dim=1)
 
-        return torch.sum(joint_probs, dim=1)
+        return joint_probs_per_dim
 
     @staticmethod
     def log_prob_mog(
