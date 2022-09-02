@@ -431,8 +431,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
         # Unconstrained diagonal and upper triangular quantities are unconstrained.
         unconstrained_diagonal = self._unconstrained_diagonal_layer(h)
 
-        # Elements of diagonal of precision factor must be positive
-        # (recall precision factor A such that SIGMA^-1 = A^T A).
+        # Elements of diagonal of covariance
         diagonal = F.softplus(unconstrained_diagonal) + self._epsilon
 
         if self._minimal_std is not None:
@@ -523,7 +522,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
         # For marginalization.
         diagonal_log = torch.log(diagonal)
         diagonal_log[dimensions] = 0.0
-        sumlogdiag = diagonal_log
+        sumlogdiag = -diagonal_log
 
         # Split up evaluation into parts.
         b = -(1 / 2.0) * np.log(2 * np.pi)
@@ -531,7 +530,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
 
         d1 = inputs - means
         d1[dimensions] = 0.0
-        d2 = diagonal ** 2 * d1
+        d2 = (1 / diagonal) ** 2 * d1
         d2[dimensions] = 0.0
         d = -0.5 * torch.einsum("bi, bi -> bi", d1, d2)
 
@@ -588,7 +587,7 @@ class DiagnonalGaussValidClassifier(nn.Module):
         # Batch triangular solve to multiply standard normal samples by inverse
         # of upper triangular precision factor.
         zero_mean_samples = (
-            torch.randn((batch_size * num_samples, output_dim)) / diagonal
+            torch.randn((batch_size * num_samples, output_dim)) * diagonal
         )
 
         # Mow center samples at chosen means, removing dummy final dimension
