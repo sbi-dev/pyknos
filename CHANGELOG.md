@@ -1,3 +1,6 @@
+# v0.15.1
+- Fixes to version v0.15.0, in which the release did not contain the desired fixes.
+
 # v0.15.0
 - `epsilon` is added after multiplication of Cholesky-factors for better numerical stability (#22)
 
