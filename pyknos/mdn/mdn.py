@@ -13,6 +13,7 @@ from torch.nn import functional as F
 
 from nflows.utils import torchutils
 
+
 # This implementation based on Conor M. Durkan's et al. lfi package (2020).
 # https://github.com/conormdurkan/lfi/blob/master/src/nn_/nde/mdn.py
 class MultivariateGaussianMDN(nn.Module):
