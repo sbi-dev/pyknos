@@ -13,6 +13,7 @@ from torch.nn import functional as F
 
 from nflows.utils import torchutils
 
+
 # This implementation based on Conor M. Durkan's et al. lfi package (2020).
 # https://github.com/conormdurkan/lfi/blob/master/src/nn_/nde/mdn.py
 class MultivariateGaussianMDN(nn.Module):
@@ -280,14 +281,15 @@ class MultivariateGaussianMDN(nn.Module):
 
         # Batch triangular solve to multiply standard normal samples by inverse
         # of upper triangular precision factor.
-        zero_mean_samples, _ = torch.triangular_solve(
+        zero_mean_samples = torch.linalg.solve_triangular(
+            chosen_precision_factors,
             torch.randn(
                 batch_size * num_samples,
                 output_dim,
                 1,
                 device=chosen_precision_factors.device,
             ),  # Need dummy final dimension.
-            chosen_precision_factors,
+            upper=True,
         )
 
         # Mow center samples at chosen means, removing dummy final dimension
