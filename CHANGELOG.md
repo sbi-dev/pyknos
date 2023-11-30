@@ -1,3 +1,6 @@
+# v0.15.2
+- Replace `torch.triangular_solve()` with `torch.linalg.solve_triangular` (#)
+
 # v0.15.1
 - Fixes to version v0.15.0, in which the release did not contain the desired fixes.
 

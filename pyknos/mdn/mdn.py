@@ -280,14 +280,15 @@ class MultivariateGaussianMDN(nn.Module):
 
         # Batch triangular solve to multiply standard normal samples by inverse
         # of upper triangular precision factor.
-        zero_mean_samples, _ = torch.triangular_solve(
+        zero_mean_samples = torch.linalg.solve_triangular(
+            chosen_precision_factors,
             torch.randn(
                 batch_size * num_samples,
                 output_dim,
                 1,
                 device=chosen_precision_factors.device,
             ),  # Need dummy final dimension.
-            chosen_precision_factors,
+            upper=True,
         )
 
         # Mow center samples at chosen means, removing dummy final dimension
