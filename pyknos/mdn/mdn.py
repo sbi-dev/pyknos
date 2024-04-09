@@ -49,11 +49,6 @@ class MultivariateGaussianMDN(nn.Module):
             custom_initialization: XXX
         """
 
-        if hidden_net is None:
-            raise TypeError("__init__() missing 1 required positional argument: 'hidden_net'")
-        if num_components is None:
-            raise TypeError("__init__() missing 1 required positional argument: 'num_components'")
-
         if hidden_features is not None:
             msg = "'hidden_features' parameter is deprecated and will be removed in a future version.\n"
             warnings.warn(msg, DeprecationWarning, stacklevel=2)
