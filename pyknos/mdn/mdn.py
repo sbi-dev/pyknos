@@ -31,9 +31,9 @@ class MultivariateGaussianMDN(nn.Module):
         self,
         features: int,
         context_features: int,
+        hidden_net: nn.Module,
+        num_components: int,
         hidden_features: int = None,
-        hidden_net: nn.Module = None,
-        num_components: int = None,
         custom_initialization=False,
         embedding_net=None,
     ):
