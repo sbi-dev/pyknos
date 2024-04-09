@@ -49,12 +49,24 @@ class MultivariateGaussianMDN(nn.Module):
             custom_initialization: XXX
         """
 
+        inferred_hidden_features = next(
+            (
+                child.out_features
+                for child in reversed(list(hidden_net.children()))
+                if hasattr(child, "out_features")
+            ),
+            None,
+        )
+
         if hidden_features is not None:
             msg = "'hidden_features' parameter is deprecated and will be removed in a future version.\n"
             warnings.warn(msg, DeprecationWarning, stacklevel=2)
-
-        hidden_features = next((child.out_features for child in reversed(list(hidden_net.children())) if
-                                hasattr(child, 'out_features')), None)
+            assert hidden_features == inferred_hidden_features, (
+                f"hidden_features={hidden_features} does not match inferred value "
+                f"{inferred_hidden_features} from hidden_net."
+            )
+        else:
+            hidden_features = inferred_hidden_features
 
         super().__init__()
 
