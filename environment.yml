@@ -29,4 +29,3 @@ dependencies:
   - "pytorch >= 1.5.1"
   - tensorboard
   - tqdm
- 
