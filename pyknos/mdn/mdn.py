@@ -4,6 +4,7 @@ C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
 
 Taken from http://github.com/conormdurkan/lfi. See there for copyright.
 """
+import warnings
 from typing import Optional, Tuple
 
 import numpy as np
@@ -30,9 +31,9 @@ class MultivariateGaussianMDN(nn.Module):
         self,
         features: int,
         context_features: int,
-        hidden_features: int,
         hidden_net: nn.Module,
         num_components: int,
+        hidden_features: int = None,
         custom_initialization=False,
         embedding_net=None,
     ):
@@ -47,6 +48,25 @@ class MultivariateGaussianMDN(nn.Module):
             num_components: Number of mixture components.
             custom_initialization: XXX
         """
+
+        inferred_hidden_features = next(
+            (
+                child.out_features
+                for child in reversed(list(hidden_net.children()))
+                if hasattr(child, "out_features")
+            ),
+            None,
+        )
+
+        if hidden_features is not None:
+            msg = "'hidden_features' parameter is deprecated and will be removed in a future version.\n"
+            warnings.warn(msg, DeprecationWarning, stacklevel=2)
+            assert hidden_features == inferred_hidden_features, (
+                f"hidden_features={hidden_features} does not match inferred value "
+                f"{inferred_hidden_features} from hidden_net."
+            )
+        else:
+            hidden_features = inferred_hidden_features
 
         super().__init__()
 
