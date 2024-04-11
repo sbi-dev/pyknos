@@ -1,0 +1,123 @@
+[build-system]
+requires = [
+    "setuptools>=65", "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyknos"
+description = "don't regress. A package for neural conditional density estimation."
+authors = [
+    { name = "sbi-dev", email = "simulation.based.inference@gmail.com"},
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Adaptive Technologies",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    """License :: OSI Approved :: GNU Affero General Public License v3 or later
+    (AGPLv3+)""",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+]
+requires-python = ">=3.8"
+dynamic = ["version"]
+readme = "README.md"
+keywords = [
+    "conditional density estimation",
+    "mixture density networks",
+    "normalizing flows",
+    "diffusion models",
+    "PyTorch"
+]
+dependencies = [
+    "matplotlib",
+    "nflows==0.14",
+    "numpy",
+    "tensorboard",
+    "torch",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter",
+    "nbconvert",
+    # Lint
+    "pre-commit == 3.5.0",
+    "pyyaml",
+    "pyright == 1.1.355",
+    "ruff>=0.3.3",
+    # Test
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "torchtestcase",
+]
+
+[project.urls]
+source = "https://github.com/sbi-dev/pyknos"
+tracker = "https://github.com/sbi-dev/pyknos/issues"
+
+# Package installation configuration
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["pyknos*"]  # package names should match these glob patterns (["*"] by default)
+exclude = []  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.setuptools.dynamic]
+version = {attr = "pyknos.__version__"}
+
+# ruff configs
+[tool.ruff]
+extend-include = ["*.ipynb"]
+line-length = 88
+
+[tool.ruff.lint]
+# pycodestyle, Pyflakes, pyupgrade, flake8-bugbear, flake8-simplify, isort
+select = ["E", "F", "W", "B", "SIM", "I"]
+ignore = [
+    "E731",  # allow naming lambda functions.
+    "B008",  # allow function calls in default args.
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403"]  # allow unused imports and undefined names
+"test_*.py" = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+lines-between-types = 0  # like isort default.
+relative-imports-order = "furthest-to-closest"  # like isort default.
+known-first-party = ["pyknos", "tests"]
+
+[tool.ruff.format]
+exclude = ["*.ipynb"]
+preview = true
+quote-style = "preserve"
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "gpu: marks tests that require a gpu (deselect with '-m \"not gpu\"')",
+]
+
+# Pyright configuration
+[tool.pyright]
+include = ["pyknos", "tests"]
+exclude = ["**/__pycache__", "**/__node_modules__", ".git"]
+python_version = "3.8"
+reportUnsupportedDunderAll = false
+reportGeneralTypeIssues = false
+reportInvalidTypeForm = false
+typeCheckingMode = "basic"
