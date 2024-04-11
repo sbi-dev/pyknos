@@ -10,10 +10,9 @@ from typing import Optional, Tuple
 
 import numpy as np
 import torch
-from torch import nn, Tensor
-from torch.nn import functional as F
-
 from nflows.utils import torchutils
+from torch import Tensor, nn
+from torch.nn import functional as F
 
 
 # This implementation based on Conor M. Durkan's et al. lfi package (2020).
@@ -60,7 +59,8 @@ class MultivariateGaussianMDN(nn.Module):
         )
 
         if hidden_features is not None:
-            msg = "'hidden_features' parameter is deprecated and will be removed in a future version.\n"
+            msg = """'hidden_features' parameter is deprecated and will be removed in a
+                future version."""
             warnings.warn(msg, DeprecationWarning, stacklevel=2)
             assert hidden_features == inferred_hidden_features, (
                 f"hidden_features={hidden_features} does not match inferred value "
