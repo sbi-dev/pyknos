@@ -1,6 +1,12 @@
 name: Continuous Integration
 
-on: [pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
 
 defaults:
   run:
@@ -65,7 +71,7 @@ jobs:
 
     - name: Check types with pyright
       run: |
-        pyright sbi
+        pyright .
 
     - name: Run the tests
       run: |
