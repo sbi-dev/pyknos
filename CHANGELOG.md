@@ -17,10 +17,10 @@
 - Upgrade dependency on `nflows` to 0.14 for NSF fix (nflows #25).
 
 # v0.13.1
-- Fix GPU bug in MDN. 
+- Fix GPU bug in MDN.
 
 # v0.13.0
-- Upgrade dependency on `nflows` to 0.13 to allow GPU support. 
+- Upgrade dependency on `nflows` to 0.13 to allow GPU support.
 
 # v0.12.0
 - Upgraded dependency on `nflows` to 0.12; explicitly allow Python 3.6 (#13)
