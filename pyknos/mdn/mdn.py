@@ -33,7 +33,7 @@ class MultivariateGaussianMDN(nn.Module):
         context_features: int,
         hidden_net: nn.Module,
         num_components: int,
-        hidden_features: int = None,
+        hidden_features: Optional[int],
         custom_initialization=False,
         embedding_net=None,
     ):
@@ -49,14 +49,16 @@ class MultivariateGaussianMDN(nn.Module):
             custom_initialization: XXX
         """
 
-        inferred_hidden_features = next(
-            (
-                child.out_features
-                for child in reversed(list(hidden_net.children()))
-                if hasattr(child, "out_features")
-            ),
-            None,
-        )
+        # Infer hidden_features from hidden_net if not provided.
+        try:
+            inferred_hidden_features: int = hidden_net(
+                torch.randn(1, context_features)
+            ).shape[-1]
+        except IndexError as err:
+            raise IndexError(
+                "Could not infer hidden_features from hidden_net. Please provide "
+                "hidden_features explicitly."
+            ) from err
 
         if hidden_features is not None:
             msg = """'hidden_features' parameter is deprecated and will be removed in a
@@ -171,7 +173,7 @@ class MultivariateGaussianMDN(nn.Module):
 
         return logits, means, precisions, sumlogdiag, precision_factors
 
-    def log_prob(self, inputs: Tensor, context=Optional[Tensor]) -> Tensor:
+    def log_prob(self, inputs: Tensor, context: Tensor) -> Tensor:
         """Return log MoG(inputs|context) where MoG is a mixture of Gaussians density.
 
         The MoG's parameters (mixture coefficients, means, and precisions) are the

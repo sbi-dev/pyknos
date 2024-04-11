@@ -120,4 +120,5 @@ python_version = "3.8"
 reportUnsupportedDunderAll = false
 reportGeneralTypeIssues = false
 reportInvalidTypeForm = false
+reportWildcardImportFromLibrary = false
 typeCheckingMode = "basic"
