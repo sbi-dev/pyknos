@@ -8,13 +8,14 @@
 # Note: To use the 'upload' functionality of this file, you need `twine`
 #   $ pip install twine --dev
 
-from typing import Dict, Any
 import io
 import os
 import sys
 from shutil import rmtree
+from typing import Any, Dict
 
-from setuptools import find_packages, setup, Command
+from setuptools import Command, find_packages, setup
+
 
 # Utility functions for metadata
 def path_setup_py() -> str:
@@ -61,7 +62,14 @@ VERSION = load_version_dict()["__version__"]
 PYTHON_REQUIRES = ">=3.6.0"
 
 INSTALL_REQUIRES = (
-    ["matplotlib", "nflows==0.14", "numpy", "tensorboard", "torch", "tqdm",],
+    [
+        "matplotlib",
+        "nflows==0.14",
+        "numpy",
+        "tensorboard",
+        "torch",
+        "tqdm",
+    ],
 )
 
 EXTRAS_REQUIRES = (
@@ -73,11 +81,13 @@ EXTRAS_REQUIRES = (
             "isort",
             "nbstripout",
             "pep517",
+            "pre-commit",
+            "pyright",
             "pytest",
-            "pytest-pep8"
+            "pytest-pep8",
             "pyyaml",
+            "ruff==0.3.3.",
             "torchtestcase",
-            "twine",
         ],
     },
 )
