@@ -4,6 +4,7 @@ C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
 
 Taken from http://github.com/conormdurkan/lfi. See there for copyright.
 """
+
 import warnings
 from typing import Optional, Tuple
 
@@ -161,9 +162,9 @@ class MultivariateGaussianMDN(nn.Module):
             torch.transpose(precision_factors, 2, 3), precision_factors
         )
         # Add epsilon to diagnonal for numerical stability.
-        precisions[
-            ..., torch.arange(self._features), torch.arange(self._features)
-        ] += self._epsilon
+        precisions[..., torch.arange(self._features), torch.arange(self._features)] += (
+            self._epsilon
+        )
 
         # The sum of the log diagonal of A is used in the likelihood calculation.
         sumlogdiag = torch.sum(torch.log(diagonal), dim=-1)
@@ -288,9 +289,7 @@ class MultivariateGaussianMDN(nn.Module):
         # Choose num_samples mixture components per example in the batch.
         choices = torch.multinomial(
             coefficients, num_samples=num_samples, replacement=True
-        ).view(
-            -1
-        )  # [batch_size, num_samples]
+        ).view(-1)  # [batch_size, num_samples]
 
         # Create dummy index for indexing means and precision factors.
         ix = torchutils.repeat_rows(torch.arange(batch_size), num_samples)
@@ -338,9 +337,7 @@ class MultivariateGaussianMDN(nn.Module):
             torch.exp(torch.tensor([1 - self._epsilon])) - 1
         ) * torch.ones(
             self._num_components * self._features
-        ) + self._epsilon * torch.randn(
-            self._num_components * self._features
-        )
+        ) + self._epsilon * torch.randn(self._num_components * self._features)
 
         # Initialize off-diagonal of precision factors to zero.
         self._upper_layer.weight.data = self._epsilon * torch.randn(
