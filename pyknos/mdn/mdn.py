@@ -33,8 +33,8 @@ class MultivariateGaussianMDN(nn.Module):
         hidden_net: nn.Module,
         num_components: int,
         hidden_features: Optional[int],
-        custom_initialization=False,
-        embedding_net=None,
+        custom_initialization: bool = False,
+        embedding_net: Optional[nn.Module] = None,
     ):
         """Mixture of multivariate Gaussians with full diagonal.
 
@@ -45,7 +45,8 @@ class MultivariateGaussianMDN(nn.Module):
             hidden_net: A Module which outputs final hidden representation before
                 paramterization layers (i.e logits, means, and log precisions).
             num_components: Number of mixture components.
-            custom_initialization: XXX
+            custom_initialization: If True, initialize mixture coefficients to be
+                approximately uniform and covariances to be approximately the identity.
         """
 
         # Infer hidden_features from hidden_net if not provided.
@@ -96,12 +97,11 @@ class MultivariateGaussianMDN(nn.Module):
             hidden_features, num_components * self._num_upper_params
         )
 
-        # XXX docstring text
-        # embedding_net: NOT IMPLEMENTED
-        #         A `nn.Module` which has trainable parameters to encode the
-        #         context (conditioning). It is trained jointly with the MDN.
         if embedding_net is not None:
-            raise NotImplementedError
+            raise NotImplementedError(
+                "embedding net is not implemented yet. We recommend using MDN in ",
+                "conjunction with nflows as done in the sbi package.",
+            )
 
         # Constant for numerical stability.
         self._epsilon = 1e-4
