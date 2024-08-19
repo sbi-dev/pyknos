@@ -10,7 +10,6 @@ from typing import Optional, Tuple
 
 import numpy as np
 import torch
-from nflows.utils import torchutils
 from torch import Tensor, nn
 from torch.nn import functional as F
 
@@ -277,13 +276,7 @@ class MultivariateGaussianMDN(nn.Module):
         Returns:
             Tensor: Samples from the MoG.
         """
-        batch_size, n_mixtures, output_dim = means.shape
-
-        # We need (batch_size * num_samples) samples in total.
-        means, precision_factors = (
-            torchutils.repeat_rows(means, num_samples),
-            torchutils.repeat_rows(precision_factors, num_samples),
-        )
+        batch_size, _, output_dim = means.shape
 
         # Normalize the logits for the coefficients.
         coefficients = F.softmax(logits, dim=-1)  # [batch_size, num_components]
@@ -291,10 +284,10 @@ class MultivariateGaussianMDN(nn.Module):
         # Choose num_samples mixture components per example in the batch.
         choices = torch.multinomial(
             coefficients, num_samples=num_samples, replacement=True
-        ).view(-1)  # [batch_size, num_samples]
+        )  # [batch_size, num_samples]
 
         # Create dummy index for indexing means and precision factors.
-        ix = torchutils.repeat_rows(torch.arange(batch_size), num_samples)
+        ix = torch.arange(batch_size).unsqueeze(1).expand(batch_size, num_samples)
 
         # Select means and precision factors.
         chosen_means = means[ix, choices, :]
@@ -305,7 +298,8 @@ class MultivariateGaussianMDN(nn.Module):
         zero_mean_samples = torch.linalg.solve_triangular(
             chosen_precision_factors,
             torch.randn(
-                batch_size * num_samples,
+                batch_size,
+                num_samples,
                 output_dim,
                 1,
                 device=chosen_precision_factors.device,
@@ -348,25 +342,3 @@ class MultivariateGaussianMDN(nn.Module):
         self._upper_layer.bias.data = self._epsilon * torch.randn(
             self._num_components * self._num_upper_params
         )
-
-
-# XXX This -> tests
-def main():
-    # probs = torch.Tensor([[1, 0], [0, 1]])
-    # samples = torch.multinomial(probs, num_samples=5, replacement=True)
-    # print(samples)
-    # quit()
-    mdn = MultivariateGaussianMDN(
-        features=2,
-        context_features=3,
-        hidden_features=16,
-        hidden_net=nn.Linear(3, 16),
-        num_components=4,
-    )
-    inputs = torch.randn(1, 3)
-    samples = mdn.sample(9, inputs)
-    print(samples.shape)
-
-
-if __name__ == "__main__":
-    main()
