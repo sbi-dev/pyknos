@@ -3,6 +3,9 @@ Implementation of models based on
 C. M. Bishop, "Mixture Density Networks", NCRG Report (1994)
 
 Taken from http://github.com/conormdurkan/lfi. See there for copyright.
+
+# This file is part of pyknos, a library for conditional density estimation.
+# pyknos is licensed under the Apache License 2.0., see LICENSE for more details.
 """
 
 import warnings

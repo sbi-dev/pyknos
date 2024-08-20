@@ -1,3 +1,6 @@
+# This file is part of pyknos, a library for conditional density estimation.
+# pyknos is licensed under the Apache License 2.0., see LICENSE for more details.
+
 from typing import Optional
 
 import pytest
