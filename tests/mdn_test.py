@@ -27,7 +27,6 @@ def get_mdn(
     return MultivariateGaussianMDN(
         features=features,
         context_features=context_features,
-        hidden_features=hidden_features,
         hidden_net=nn.Sequential(
             nn.Linear(context_features, hidden_features),
             nn.ReLU(),
