@@ -1,3 +1,23 @@
+# Changelog
+
+## v0.16.0 (August 2024)
+
+- **Bumped Version**: Updated version and README.
+- **CI Updates**: Separated linting and testing actions.
+- **Documentation**: Updated docs and improved handling of hidden features.
+- **Bug Fixes**:
+  - Fixed docstrings and embedding-net handling messages.
+  - Resolved issues with batched sampling and associated tests (#35).
+  - Fixed CI configurations and Pyright errors.
+  - Corrected version retrieval process.
+- **Enhancements**:
+  - Added contribution guide (#5) and code of conduct.
+  - Replaced setup with `pyproject.toml`.
+  - Refactored CI; added pre-commit hooks and formatting.
+  - Extended tests (#32).
+- **License Change**: Switched to Apache 2.0 (#28).
+- **Miscellaneous**: Performed Ruff checks and automatic fixes.
+
 # v0.15.2
 - Replace `torch.triangular_solve()` with `torch.linalg.solve_triangular` (#26).
 
