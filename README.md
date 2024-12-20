@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/pyknos.svg)](https://badge.fury.io/py/pyknos)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/pyknos.svg)](https://github.com/conda-forge/pyknos-feedstock)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/sbi-dev/pyknos/blob/master/CONTRIBUTING.md)
 [![GitHub license](https://img.shields.io/github/license/mackelab/pyknos)](https://github.com/mackelab/sbi/blob/master/LICENSE.txt)
 
@@ -25,10 +26,26 @@ created as follows:
 $ conda create -n pyknos_env python=3.12 && conda activate pyknos_env
 ```
 
-Independent of whether you are using `conda` or not, `pyknos` can be installed using `pip`:
+### From PyPI
 
-```commandline
-pip install pyknos
+To install `pyknos` from PyPI run
+
+```
+python -m pip install pyknos
+```
+
+### From conda-forge
+
+To install and add `pyknos` to a project with [`pixi`](https://pixi.sh/), from the project directory run
+
+```
+pixi add pyknos
+```
+
+and to install into a particular conda environment with [`conda`](https://docs.conda.io/projects/conda/), in the activated environment run
+
+```
+conda install --channel conda-forge pyknos
 ```
 
 ## Examples
